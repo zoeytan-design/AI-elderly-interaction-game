@@ -1,0 +1,15 @@
+{
+  "name": "ai-elderly-interaction-game",
+  "version": "1.0.0",
+  "description": "互動窗戶擦拭記憶遊戲（含 Gemini AI 出題功能）",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2"
+  }
+}
