@@ -66,6 +66,12 @@
             <!-- 放大版孫子圖片容器 -->
             <div class="character-container">
                 <img src="Image/孫子1.png" alt="孫子" class="character-image" id="character-image">
+            
+                <!-- AI 提示泡泡（問答 5 秒未作答時顯示） -->
+                <div class="ai-hint-bubble hidden" id="ai-hint-bubble">
+                    <span class="ai-hint-label">小提示</span>
+                    <p id="ai-hint-text"></p>
+                </div>
             </div>
         </div>
         
@@ -151,7 +157,7 @@
         <div class="camera-error-card">
             <h2>相機無法啟動</h2>
             <p id="camera-error-message">請使用本地伺服器開啟本遊戲並允許相機權限。</p>
-            <p>請在 Chrome 中打開：<strong>http://localhost:8000</strong></p>            
+            <p>請在 Chrome 中打開：<strong>http://localhost:3000</strong></p>        
             <p>如果相機仍無法啟動，請嘗試使用滑鼠在窗戶上擦拭。</p>            
             <button class="camera-error-btn" id="camera-error-retry">重新嘗試</button>
         </div>
