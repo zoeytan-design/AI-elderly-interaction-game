@@ -758,3 +758,65 @@ html, body {
         padding: 8px 24px;
     }
 }
+
+/* ==========================================================================
+   AI 提示泡泡（問答階段 5 秒未作答時，孫子/孫女角色旁顯示）
+   ========================================================================== */
+.ai-hint-bubble {
+    position: absolute;
+    top: 8%;
+    right: -30px;
+    max-width: 340px;
+    padding: 20px 24px;
+    background: rgba(255, 251, 234, 0.97);
+    border: 4px solid #8B5E3C;
+    border-radius: 28px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+    z-index: 30;
+    animation: hintPop 0.35s ease-out;
+}
+
+.ai-hint-bubble::before {
+    content: "";
+    position: absolute;
+    left: -18px;
+    top: 36px;
+    width: 26px;
+    height: 26px;
+    background: rgba(255, 251, 234, 0.97);
+    border-left: 4px solid #8B5E3C;
+    border-bottom: 4px solid #8B5E3C;
+    transform: rotate(45deg);
+}
+
+.ai-hint-label {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 4px 14px;
+    border-radius: 999px;
+    background: #F6D365;
+    color: #5A3B1E;
+    font-family: 'HanWangKaiChuIn', 'Microsoft JhengHei', sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#ai-hint-text {
+    margin: 0;
+    color: #4A321F;
+    font-family: 'HanWangKaiChuIn', 'Microsoft JhengHei', sans-serif;
+    font-size: 28px;
+    line-height: 1.4;
+    font-weight: bold;
+}
+
+@keyframes hintPop {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
