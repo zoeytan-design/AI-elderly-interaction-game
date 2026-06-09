@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互動窗戶擦拭遊戲 - 滿版設計</title>
+    <!-- 引入美化用 Google 字型 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- 引入 Mediapipe 官方手勢識別庫 -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <!-- 主畫面設定介面：自訂使用者性別、孫子/孫女性別、名字 -->
+    <div class="startup-overlay" id="startup-overlay">
+        <div class="startup-card">
+            <div class="startup-headline">你甘有好無？</div>
+            <div class="startup-grid">
+                <div class="startup-panel">
+                    <div class="startup-section">
+                        <div class="startup-section-label">您的性別</div>
+                        <div class="startup-options startup-options-vertical">
+                            <label class="option-pill"><input type="radio" name="user-gender" value="male"> <span>男生</span></label>
+                            <label class="option-pill selected"><input type="radio" name="user-gender" value="female" checked> <span>女生</span></label>
+                        </div>
+                    </div>
+                    <div class="startup-section">
+                        <div class="startup-section-label">阿孫性別</div>
+                        <div class="startup-options startup-options-vertical">
+                            <label class="option-pill selected"><input type="radio" name="grandchild-gender" value="male" checked> <span>男生</span></label>
+                            <label class="option-pill"><input type="radio" name="grandchild-gender" value="female"> <span>女生</span></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="startup-character-card">
+                    <img id="startup-character-image" src="Image/孫子1.png" alt="孫子" class="startup-character-image">
+                </div>
+                <div class="startup-card-right">
+                    <div class="startup-name-box">
+                        <div class="startup-name-title">(給阿孫起名)</div>
+                        <input type="text" id="grandchild-name-input" value="王小明" placeholder="王小明" class="startup-name-input">
+                    </div>
+                    <button class="start-game-btn" id="start-game-btn"><span class="start-icon">▶</span><span>開始</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 滿版遊戲主容器 -->
+    <div class="game-container">
+        
+        <!-- 左側欄：名字標籤直立於放大版孫子正上方 -->
+        <div class="left-panel">
+            <!-- 名字標籤：白底黑邊膠囊，完美居中於孫子上方 -->
+            <div class="name-badge-container">
+                <div class="name-badge" id="name-badge">
+                    王小明
+                </div>
+            </div>
+            
+            <!-- 放大版孫子圖片容器 -->
+            <div class="character-container">
+                <img src="Image/孫子1.png" alt="孫子" class="character-image" id="character-image">
+            </div>
+        </div>
+        
+        <!-- 右側欄：垂直排列的窗戶區域與完美對齊的對話框 -->
+        <div class="right-panel">
+            
+            <!-- 窗戶容器 -->
+            <div class="window-wrapper" id="window-wrapper">
+<!-- 最底層場景：阿土伯關卡 / 其他關卡背景 -->
+                <img id="window-bg-image" src="Image/阿土伯.png" alt="戶外背景" class="window-bg-image">
+                
+                <!-- 中間層：雨水起霧遮罩畫布 -->
+                <canvas id="fog-canvas"></canvas>
+                
+                <!-- 最上層前景：窗框 (100% 滿版以覆蓋底下溢出的圖像邊緣) -->
+                <img src="Image/窗框 1.png" alt="窗框" class="window-frame-image">
+                
+                <!-- 手勢偵測食指的粒子擦拭效果視覺圓圈層 -->
+                <div id="gesture-pointers"></div>
+
+                <!-- ============================================================
+                     【第三階段：問答選項按鈕覆蓋層】
+                     預設隱藏，countdown 倒數結束後由 JS 顯示
+                     ============================================================ -->
+                <div class="qa-overlay hidden" id="qa-overlay">
+                    <!-- =======================================================
+                         【後台程式碼設定：在此修改三個選項按鈕文字】
+                         ====================================================== -->
+                    <button class="qa-btn" data-answer="correct" id="qa-btn-1">大　紅　色</button>
+                    <button class="qa-btn" data-answer="wrong"   id="qa-btn-2">天　空　藍</button>
+                    <button class="qa-btn" data-answer="wrong"   id="qa-btn-3">草　綠　色</button>
+                </div>
+                <div class="wrong-result-overlay hidden" id="wrong-result-overlay">
+                    <img id="wrong-result-image" src="Image/阿土伯.png" alt="阿土伯" class="wrong-result-image">
+                    <div class="wrong-result-actions">
+                        <button class="result-btn retry-btn" id="btn-retry">再　試　一　次</button>
+                        <button class="result-btn giveup-btn" id="btn-giveup">先　回　去</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 
+               倒數計時讀條容器 (預設隱藏，清除率達標時由 JS 取消 hidden 顯示出來)
+               懸浮在磁磚壁紙上，無邊框無底色，符合附圖設計
+            -->
+            <div class="countdown-bar-container hidden" id="countdown-container">
+                <span class="countdown-label">起霧倒數</span>
+                <div class="progress-track">
+                    <div class="progress-fill" id="countdown-progress"></div>
+                </div>
+            </div>
+            
+            <!-- 底部的對話框 (寬度自動與上方的窗戶完美對齊) -->
+            <div class="dialogue-box" id="dialogue-box">
+                <!-- 【一般文字段】用於 stage 1/2/3 -->
+                <p class="dialogue-text" id="dialogue-text-element">
+                    <!-- =======================================================
+                         【後台程式碼設定：在此修改下方對話框初始文字】
+                         ====================================================== -->
+                    阿罵，窗戶起霧了，擦一下吧。
+                </p>
+
+                <!-- 【第四階段：結果按鈕列】預設隱藏 -->
+                <div class="result-actions hidden" id="result-actions">
+                    <!-- =======================================================
+                         【後台程式碼設定：在此修改結果階段的兩個操作按鈕文字】
+                         ====================================================== -->
+                    <button class="result-btn next-btn" id="btn-next">
+                        &#9658;&#xff08;下　一　題&#xff09;
+                    </button>
+                    <button class="result-btn home-btn" id="btn-home">
+                        &#127968;&#xff08;今　天　先　這　樣&#xff09;
+                    </button>
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+
+    <!-- 相機錯誤提示覆蓋層 -->
+    <div class="camera-error-overlay hidden" id="camera-error-overlay">
+        <div class="camera-error-card">
+            <h2>相機無法啟動</h2>
+            <p id="camera-error-message">請使用本地伺服器開啟本遊戲並允許相機權限。</p>
+            <p>請在 Chrome 中打開：<strong>http://localhost:8000</strong></p>            
+            <p>如果相機仍無法啟動，請嘗試使用滑鼠在窗戶上擦拭。</p>            
+            <button class="camera-error-btn" id="camera-error-retry">重新嘗試</button>
+        </div>
+    </div>
+
+    <!-- 隱藏式視訊鏡頭（放置於 DOM 中供 Mediapipe 後台讀取，不影響畫面） -->
+    <video id="webcam-video" autoplay muted playsinline style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none;"></video>
+
+    <!-- 載入遊戲核心邏輯 -->
+    <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,760 @@
+/* ==========================================================================
+   1. 基礎設定與字型載入
+   ========================================================================== */
+@font-face {
+    font-family: 'HanWangKaiChuIn';
+    src: url('HanWangKaiMediumChuIn.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* body 撐滿視窗，將大字體高齡友善 1600px * 950px 規格的遊戲視窗完美置中 */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* 垂直居中 */
+    font-family: 'Outfit', 'HanWangKaiChuIn', 'Microsoft JhengHei', sans-serif;
+    
+    /* 精緻磁磚壁紙 (使用向量 SVG 連續鋪設，完美呈現 UI 設計感) */
+    background-color: #eaf0f6;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23eff4f8'/%3E%3Cline x1='0' y1='100' x2='100' y2='100' stroke='%23d1dee9' stroke-width='1.5'/%3E%3Cline x1='100' y1='0' x2='100' y2='100' stroke='%23d1dee9' stroke-width='1.5'/%3E%3C!-- 十字路口上的精美四瓣花形圖騰 --%3E%3Cpath d='M97%2C100 Q100%2C97 100%2C93 Q100%2C97 103%2C100 Q100%2C103 100%2C107 Q100%2C103 97%2C100 Z' fill='%2390a4b9'/%3E%3Cpath d='M0%2C100 Q0%2C97 0%2C93 Q0%2C97 3%2C100 Q0%2C103 0%2C107 Q0%2C103 0%2C100 Z' fill='%2390a4b9'/%3E%3Cpath d='M97%2C0 Q100%2C-3 100%2C-7 Q100%2C-3 103%2C0 Q100%2C3 100%2C7 Q100%2C3 97%2C0 Z' fill='%2390a4b9'/%3E%3Ccircle cx='100' cy='100' r='1.5' fill='%23eff4f8'/%3E%3Ccircle cx='0' cy='100' r='1.5' fill='%23eff4f8'/%3E%3Ccircle cx='100' cy='0' r='1.5' fill='%23eff4f8'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+}
+
+/* ==========================================================================
+   2. 主排版容器 (【高齡友善等比放大】：寬度升級為 1600px，高度升級為 950px)
+   ========================================================================== */
+.game-container {
+    width: 1600px;
+    height: 950px;
+    padding: 30px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center; /* 左右面板垂直置中 */
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.startup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 20, 30, 0.86);
+    backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 24px;
+}
+
+.startup-overlay.hidden {
+    display: none;
+}
+
+.startup-card {
+    width: min(920px, 100%);
+    background: #ffffff;
+    border-radius: 32px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.22);
+    padding: 40px 42px;
+    text-align: center;
+}
+
+.startup-card h1 {
+    margin: 0 0 24px;
+    font-size: 44px;
+    color: #1a1a1a;
+}
+
+.startup-headline {
+    font-size: 40px;
+    letter-spacing: 0.08em;
+    background: #ffffff;
+    color: #1a1a1a;
+    padding: 22px 30px;
+    border: 2px solid #1a1a1a;
+    border-radius: 18px;
+    display: inline-flex;
+    margin-bottom: 26px;
+}
+
+.startup-grid {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) minmax(320px, 1fr) minmax(280px, 1fr);
+    gap: 28px;
+    align-items: center;
+}
+
+.startup-panel,
+.startup-card-right {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.startup-section {
+    background: #fdfdfd;
+    border: 2px solid #1a1a1a;
+    border-radius: 28px;
+    padding: 22px;
+}
+
+.startup-section-label {
+    font-size: 28px;
+    letter-spacing: 0.12em;
+    margin-bottom: 18px;
+}
+
+.startup-options {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.startup-options-vertical {
+    flex-direction: column;
+}
+
+.option-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 24px;
+    border: 2px solid #1a1a1a;
+    border-radius: 999px;
+    font-size: 26px;
+    cursor: pointer;
+    background: #ffffff;
+    transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.option-pill.selected,
+.option-pill:hover {
+    background: #1a1a1a;
+    color: #ffffff;
+    border-color: #1a1a1a;
+}
+
+.option-pill input {
+    display: none;
+}
+
+.option-pill input:checked + span {
+    color: #ffffff;
+}
+
+.startup-character-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.startup-character-image {
+    width: min(100%, 340px);
+    height: auto;
+    border-radius: 38px;
+    border: 6px solid #ffffff;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.14);
+}
+
+.startup-name-box {
+    background: #ffffff;
+    border: 3px solid #1a1a1a;
+    border-radius: 32px;
+    padding: 28px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.startup-name-title {
+    font-size: 24px;
+    color: #1a1a1a;
+    letter-spacing: 0.16em;
+}
+
+.startup-name-input {
+    width: 100%;
+    min-height: 90px;
+    font-size: 42px;
+    font-weight: 700;
+    text-align: center;
+    border: 3px solid #1a1a1a;
+    border-radius: 28px;
+    background: #f7f7f7;
+    outline: none;
+    letter-spacing: 0.2em;
+}
+
+.start-game-btn {
+    width: 100%;
+    margin-top: 28px;
+    font-size: 34px;
+    padding: 20px 0;
+    border: none;
+    border-radius: 999px;
+    background: #1a1a1a;
+    color: #ffffff;
+    cursor: pointer;
+    transition: transform 0.16s ease, background 0.16s ease;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+
+.start-game-btn:hover {
+    transform: translateY(-2px);
+    background: #333333;
+}
+
+.start-game-btn:active {
+    transform: translateY(0);
+}
+
+.start-icon {
+    display: inline-block;
+    font-size: 34px;
+    line-height: 1;
+}
+
+.camera-error-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 20, 30, 0.82);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 24px;
+}
+
+.camera-error-overlay.hidden {
+    display: none !important;
+}
+
+.camera-error-card {
+    max-width: 520px;
+    width: 100%;
+    background: #fff;
+    border-radius: 24px;
+    padding: 32px 30px;
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.24);
+    text-align: center;
+}
+
+.camera-error-card h2 {
+    margin: 0 0 18px;
+    font-size: 38px;
+    letter-spacing: 1px;
+    color: #1a1a1a;
+}
+
+.camera-error-card p {
+    margin: 12px 0;
+    font-size: 24px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.camera-error-card strong {
+    color: #0077cc;
+}
+
+.camera-error-btn {
+    margin-top: 24px;
+    font-size: 26px;
+    font-weight: 600;
+    color: #fff;
+    background: #0077cc;
+    border: none;
+    border-radius: 999px;
+    padding: 14px 30px;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.camera-error-btn:hover {
+    transform: translateY(-2px);
+    background: #005fa3;
+}
+
+.camera-error-btn:active {
+    transform: translateY(0);
+}
+
+/* ==========================================================================
+   3. 左側欄位 (巨型化左側版面，名字字體放大)
+   ========================================================================== */
+.left-panel {
+    width: 400px;
+    height: 890px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 垂直置中 */
+    align-items: center; /* 左右置中 */
+}
+
+/* 名字標籤容器 */
+.name-badge-container {
+    margin-bottom: 24px; 
+    text-align: center;
+    width: 100%;
+}
+
+/* 名字標籤：白底黑邊大膠囊，字體放大至超醒目的 42px，方便長輩閱讀 */
+.name-badge {
+    background-color: #ffffff;
+    border: 3px solid #1a1a1a;
+    border-radius: 50px;
+    padding: 12px 48px;
+    font-family: 'HanWangKaiChuIn', 'Microsoft JhengHei', sans-serif;
+    font-size: 42px; /* 放大字體 */
+    color: #1a1a1a;
+    display: inline-block;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-weight: 500;
+    letter-spacing: 2px;
+}
+
+/* 孫子角色容器 */
+.character-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+/* 巨型孫子：高度拉大至 600px，讓長輩看得更清晰、親切 */
+.character-image {
+    width: auto;
+    height: 600px; /* 巨型高度 */
+    object-fit: contain;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.12));
+}
+
+/* ==========================================================================
+   4. 右側欄位 (包含巨型窗戶、倒數條與對話框，右側貼邊)
+   ========================================================================== */
+.right-panel {
+    width: 1120px;
+    height: 890px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 垂直置中 */
+    align-items: flex-end; /* 右對齊，使窗戶貼齊螢幕右側 */
+}
+
+/* 
+   【巨型等比例窗戶】：寬度升級為固定的 1080px。
+   根據原始窗框比例（1506 x 929），高度等比為 667px。
+*/
+.window-wrapper {
+    position: relative;
+    width: 1080px; 
+    height: 667px; 
+    overflow: hidden; /* 【物理裁剪】：裁切掉邊緣 4px 的白邊溢出 */
+    border-radius: 8px;
+    background-color: #1c1c1c; /* 深色底板，防漏白光 */
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px; /* 微調間距以適應倒數計時條 */
+}
+
+/* 
+   內置三層元件全部採用 4px 溢出縮放，
+   使窗框的外層 4px 白邊被隱藏裁剪掉。
+*/
+.window-bg-image {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    width: calc(100% + 8px);
+    height: calc(100% + 8px);
+    object-fit: cover;
+    z-index: 1;
+}
+
+#fog-canvas {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    width: calc(100% + 8px);
+    height: calc(100% + 8px);
+    z-index: 2;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='8' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E") 12 12, pointer;
+    transition: opacity 0.3s ease;
+}
+
+/* 【倒數狀態隱藏起霧畫布】：完全隱藏起霧層，呈現完美清晰的屋外畫面 */
+#fog-canvas.hidden {
+    display: none !important;
+}
+
+.window-frame-image {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    width: calc(100% + 8px);
+    height: calc(100% + 8px);
+    object-fit: fill; 
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   5. 倒數計時讀條容器 (與視窗同寬，懸浮在壁紙上，符合附圖設計)
+   ========================================================================== */
+.countdown-bar-container {
+    width: 1080px; 
+    height: 60px;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start; /* 文字標籤靠左，讀條延伸 */
+    gap: 16px;
+    margin-bottom: 15px;
+    box-shadow: none;
+    flex-shrink: 0;
+    /* 顯示時 fade-in 動畫 */
+    animation: fadeIn 0.4s ease forwards;
+}
+
+/* 預設隱藏類別 */
+.countdown-bar-container.hidden {
+    display: none !important;
+}
+
+/* "起霧倒數" 文字標籤，採用注音字體與超清晰 28px */
+.countdown-label {
+    font-family: 'HanWangKaiChuIn', 'Microsoft JhengHei', sans-serif;
+    font-size: 28px;
+    color: #1a1a1a;
+    flex-shrink: 0;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* 讀條軌道：灰底、圓角膠囊、白邊框 */
+.progress-track {
+    flex-grow: 1;
+    height: 32px;
+    background-color: #616161;
+    border: 3px solid #ffffff;
+    border-radius: 50px;
+    overflow: hidden;
+    padding: 3px;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* 讀條填充物：白色，從右側向左收縮 */
+.progress-fill {
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    border-radius: 50px;
+    /* 
+      【關鍵】transition 使讀條從右向左平滑流失：
+      JS 每 50ms 降低 width，CSS transition 補間每段動畫。
+    */
+    transition: width 0.08s linear;
+    transform-origin: left center; /* 從左側錨點收縮，視覺上從右邊消失 */
+}
+
+/* ==========================================================================
+   6. 下半部對話框 (與上方窗戶寬度 1080px 絕對對齊)
+   ========================================================================== */
+.dialogue-box {
+    width: 1080px;
+    min-height: 130px;
+    background-color: #ffffff;
+    border: 3px solid #1a1a1a;
+    border-radius: 20px;
+    padding: 20px 45px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+}
+
+/* 文字放大至超清晰 36px，讓長輩/高齡人士輕鬆閱讀注音與大中文字 */
+.dialogue-text {
+    font-family: 'HanWangKaiChuIn', 'Microsoft JhengHei', sans-serif;
+    font-size: 36px;
+    color: #1a1a1a;
+    margin: 0;
+    width: 100%;
+    text-align: left;
+    white-space: normal;        /* 第三階段長文字允許換行 */
+    overflow: hidden;
+    word-break: break-all;
+    letter-spacing: 0;
+    line-height: 1.3;
+}
+
+/* 【第三階段文字較長時縮小字體】 */
+.dialogue-text.small {
+    font-size: 30px;
+}
+
+/* ==========================================================================
+   7. 手勢擦除視覺輔助小圓點
+   ========================================================================== */
+.finger-pointer {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: 4px solid #3498db;
+    box-shadow: 0 0 20px #3498db, inset 0 0 8px #3498db;
+    pointer-events: none;
+    z-index: 99;
+    transform: translate(-50%, -50%);
+    animation: pulse 1.2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0%   { transform: translate(-50%, -50%) scale(1);   opacity: 0.9; }
+    50%  { transform: translate(-50%, -50%) scale(1.2); opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) scale(1);   opacity: 0.9; }
+}
+
+/* ==========================================================================
+   8. 【第三階段】問答選項按鈕覆蓋層
+      疊在 window-wrapper 上面（z-index: 10），垂直置中排列三個膠囊按鈕
+   ========================================================================== */
+.qa-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10; /* 高於窗框圖片 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start; /* 按附圖靠左側偏中 */
+    gap: 20px;
+    padding: 0 60px;
+    pointer-events: all;
+    /* 入場淡入 */
+    animation: fadeInScale 0.5s ease forwards;
+}
+
+.qa-overlay.hidden {
+    display: none !important;
+}
+
+.wrong-result-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 11;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    padding: 0 60px;
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.wrong-result-overlay.hidden {
+    display: none !important;
+}
+
+.wrong-result-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 20px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.wrong-result-actions {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* 每個選項按鈕：白底黑邊大膠囊，使用注音字體 */
+.qa-btn {
+    font-family: 'HanWangKaiChuIn', 'Microsoft JhengHei', sans-serif;
+    font-size: 38px;
+    color: #1a1a1a;
+    background-color: #ffffff;
+    border: 3px solid #1a1a1a;
+    border-radius: 50px;
+    padding: 14px 60px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    white-space: nowrap;
+    letter-spacing: 0;
+    min-width: 280px;
+    text-align: center;
+}
+
+.qa-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+    background-color: #f0f6ff;
+}
+
+.qa-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* 【手勢控制高亮】：食指指向時的視覺反饋 */
+.qa-btn.gesture-hover {
+    background-color: #fff4e6;
+    border-color: #ff9800;
+    box-shadow: 0 0 30px rgba(255, 152, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.18);
+    transform: scale(1.05);
+}
+
+/* 正確答案：閃綠色 */
+.qa-btn.correct-flash {
+    background-color: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+    animation: correctPulse 0.5s ease;
+}
+
+/* 錯誤答案：閃紅色 */
+.qa-btn.wrong-flash {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+    animation: wrongShake 0.4s ease;
+}
+
+@keyframes correctPulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+@keyframes wrongShake {
+    0%   { transform: translateX(0); }
+    20%  { transform: translateX(-10px); }
+    40%  { transform: translateX(10px); }
+    60%  { transform: translateX(-8px); }
+    80%  { transform: translateX(8px); }
+    100% { transform: translateX(0); }
+}
+
+/* ==========================================================================
+   9. 【第四階段】結果操作按鈕列（嵌入 dialogue-box 下方）
+   ========================================================================== */
+.result-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    margin-top: 16px;
+    width: 100%;
+    justify-content: center;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.result-actions.hidden {
+    display: none !important;
+}
+
+.result-btn {
+    font-family: 'HanWangKaiChuIn', 'Microsoft JhengHei', sans-serif;
+    font-size: 30px;
+    color: #1a1a1a;
+    background-color: #ffffff;
+    border: 3px solid #1a1a1a;
+    border-radius: 50px;
+    padding: 12px 40px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    letter-spacing: 0;
+    white-space: nowrap;
+}
+
+.result-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.result-btn:active {
+    transform: translateY(0) scale(0.97);
+}
+
+/* 下一題按鈕：強調色 */
+.next-btn {
+    background-color: #e8f4fd;
+    border-color: #2980b9;
+    color: #1a5276;
+}
+
+.next-btn:hover {
+    background-color: #d0eaf8;
+}
+
+/* 今天先這樣：中性 */
+.home-btn {
+    background-color: #f5f5f5;
+    border-color: #555555;
+    color: #333333;
+}
+
+.home-btn:hover {
+    background-color: #e8e8e8;
+}
+
+/* ==========================================================================
+   10. 通用動畫
+   ========================================================================== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* ==========================================================================
+   11. 響應式微調
+   ========================================================================== */
+@media (max-width: 768px) {
+    .name-badge {
+        font-size: 28px;
+        padding: 8px 24px;
+    }
+}
